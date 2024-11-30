@@ -7,6 +7,8 @@ class Coordinates(models.Model):
 
     def __str__(self):
         return f"Lat: {self.latitude}, Long: {self.longitude}"
+
+    
 class coordinatesArd(models.Model):
     latitude = models.FloatField()
     longitude = models.FloatField()
