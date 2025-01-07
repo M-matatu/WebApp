@@ -22,6 +22,66 @@ from rest_framework import status
 from django.utils import timezone
 from .models import Bus
 from .serializers import BusSerializer
+from django.http import JsonResponse
+from django.views import View
+from .models import UserBalance
+from django.contrib.auth.models import User
+
+from django_daraja.mpesa.core import MpesaClient
+
+@permission_classes([AllowAny])
+@csrf_exempt
+class BalanceView(View):
+    def get(self, request):
+        username = request.GET.get('username')
+        
+        if not username:
+            return JsonResponse({'error': 'Username parameter is required'}, status=400)
+
+        try:
+            user = User.objects.get(username=username)
+            user_balance = UserBalance.objects.get(user=user)
+            return JsonResponse({'balance': str(user_balance.balance)}, status=200)
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+        except UserBalance.DoesNotExist:
+            return JsonResponse({'error': 'Balance not found for this user'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+        
+
+@permission_classes([AllowAny])
+@csrf_exempt
+def pay(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            phone_number = data.get('phone_number')
+            amount = data.get('amount', 1)
+            username = data.get('username')
+
+            cl = MpesaClient()
+            response = cl.stk_push(phone_number, amount, 'reference', 'Description', 'https://customerdasshboard.onrender.com/dashboard')
+
+            if response.get('ResponseCode') == '0':
+                user = User.objects.get(username=username)
+                user_balance = UserBalance.objects.get(user=user)
+                user_balance.balance += decimal.Decimal(amount)
+                user_balance.save()
+
+                return JsonResponse({'success': 'Payment successful', 'new_balance': str(user_balance.balance)}, status=200)
+
+            return JsonResponse({'error': 'Payment failed', 'details': response}, status=400)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+        except UserBalance.DoesNotExist:
+            return JsonResponse({'error': 'Balance not found for this user'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 @permission_classes([AllowAny])
 @csrf_exempt
