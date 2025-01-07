@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'backendApi',
     'rest_framework',
     'corsheaders',
+    'django_daraja',
     'rest_framework_simplejwt',
 ]
 REST_FRAMEWORK = {

@@ -31,7 +31,7 @@ from django_daraja.mpesa.core import MpesaClient
 
 @permission_classes([AllowAny])
 @csrf_exempt
-class BalanceView(View):
+class BalanceView(APIView):
     def get(self, request):
         username = request.GET.get('username')
         
