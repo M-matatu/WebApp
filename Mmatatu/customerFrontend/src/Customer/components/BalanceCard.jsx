@@ -26,7 +26,7 @@ export default function BalanceCard({ username }) {
     try {
         const username = localStorage.getItem("username"); // Get the username from local storage
         
-        const response = await fetch("http://localhost:8000/pay/", {
+        const response = await fetch("https://mmatatubackend.onrender.com/backend/pay/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
