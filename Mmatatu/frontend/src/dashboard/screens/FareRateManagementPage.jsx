@@ -221,7 +221,7 @@ const FareRateManagementPage = () => {
                   name="route_start"
                   value={newEntry.route_start}
                   onChange={handleNewEntryChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
                   required
                 />
               </div>
